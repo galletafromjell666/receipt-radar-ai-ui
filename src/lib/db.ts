@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-http';
 import { expenses } from './schema';
-import { eq, ilike, desc, asc, count, sum, avg, max, gte } from 'drizzle-orm';
+import { eq, ilike, desc, asc, count, sum, avg, max, gte, lte, and } from 'drizzle-orm';
 
 const db = drizzle(process.env.NEON_DATABASE_URL!);
 
@@ -18,6 +18,7 @@ export interface GetExpensesParams {
   dir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  month?: string; // format: "YYYY-MM"
 }
 
 export interface Expense {
@@ -50,10 +51,11 @@ function rowToExpense(row: typeof expenses.$inferSelect): Expense {
   };
 }
 
-export async function getExpenses(params: GetExpensesParams = {}) {
+export async function getExpensesByMonth(month: string, search?: string, sort: 'date' | 'amount' | 'merchant' = 'date', dir: 'asc' | 'desc' = 'desc'): Promise<Expense[]> {
   try {
-    const { search, sort = 'date', dir = 'desc', page = 1, limit = 20 } = params;
-    const offset = (page - 1) * limit;
+    const [year, monthNum] = month.split('-').map(Number);
+    const startOfMonth = new Date(year, monthNum - 1, 1);
+    const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59);
 
     const orderByFn = sort === 'amount'
       ? dir === 'desc' ? desc(expenses.amount) : asc(expenses.amount)
@@ -61,22 +63,22 @@ export async function getExpenses(params: GetExpensesParams = {}) {
       ? dir === 'desc' ? desc(expenses.merchant) : asc(expenses.merchant)
       : dir === 'desc' ? desc(expenses.date) : asc(expenses.date);
 
-    const conditions = search
-      ? [ilike(expenses.merchant, `%${search}%`), ilike(expenses.category, `%${search}%`), ilike(expenses.source, `%${search}%`)]
-      : undefined;
+    let whereCondition = and(gte(expenses.date, startOfMonth), lte(expenses.date, endOfMonth));
 
-    const [expenseList, countResult] = await Promise.all([
-      db.select().from(expenses).where(conditions?.[0]).orderBy(orderByFn).limit(limit).offset(offset),
-      db.select({ count: count() }).from(expenses).where(conditions?.[0]),
-    ]);
+    if (search) {
+      const searchCondition = and(
+        ilike(expenses.merchant, `%${search}%`),
+        ilike(expenses.category, `%${search}%`),
+        ilike(expenses.source, `%${search}%`)
+      );
+      whereCondition = and(whereCondition, searchCondition);
+    }
 
-    return {
-      expenses: expenseList.map(rowToExpense),
-      total: countResult[0]?.count || 0,
-    };
+    const result = await db.select().from(expenses).where(whereCondition).orderBy(orderByFn);
+    return result.map(rowToExpense);
   } catch (e) {
-    console.error('getExpenses error:', e);
-    return { expenses: [], total: 0 };
+    console.error('getExpensesByMonth error:', e);
+    return [];
   }
 }
 
@@ -165,6 +167,26 @@ export async function getRecentExpenses(limit: number = 10): Promise<Expense[]> 
     return result.map(rowToExpense);
   } catch (e) {
     console.error('getRecentExpenses error:', e);
+    return [];
+  }
+}
+
+export async function getMonthsWithData(): Promise<string[]> {
+  try {
+    const result = await db.select({ date: expenses.date }).from(expenses);
+    
+    const monthsSet = new Set<string>();
+    for (const row of result) {
+      if (row.date) {
+        const d = new Date(row.date);
+        const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        monthsSet.add(monthStr);
+      }
+    }
+
+    return Array.from(monthsSet).sort().reverse();
+  } catch (e) {
+    console.error('getMonthsWithData error:', e);
     return [];
   }
 }
