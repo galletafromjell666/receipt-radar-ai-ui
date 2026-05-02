@@ -103,7 +103,36 @@ export function ExpensesClient({
   return (
     <>
       <Box mb="md">
-        <MonthFilter currentMonth={month} monthsWithData={monthsWithData} onMonthChange={handleMonthChange} />
+        <Group justify="space-between" align="flex-end" wrap="wrap" gap="md">
+          <MonthFilter currentMonth={month} monthsWithData={monthsWithData} onMonthChange={handleMonthChange} />
+          <Group>
+            <TextInput
+              placeholder="Search expenses..."
+              value={search}
+              onChange={(e) => handleSearchChange(e.currentTarget.value)}
+              miw={200}
+            />
+            <Select
+              value={sort}
+              onChange={handleSortChange}
+              data={[
+                { value: 'date', label: 'Date' },
+                { value: 'amount', label: 'Amount' },
+                { value: 'merchant', label: 'Merchant' },
+              ]}
+              w={120}
+            />
+            <Select
+              value={dir}
+              onChange={handleDirChange}
+              data={[
+                { value: 'desc', label: 'Descending' },
+                { value: 'asc', label: 'Ascending' },
+              ]}
+              w={150}
+            />
+          </Group>
+        </Group>
       </Box>
 
       <Box mb="md">
@@ -137,37 +166,6 @@ export function ExpensesClient({
       <Box mb="md">
         <CategoryBreakdownChart expenses={filteredAndSortedExpenses} />
       </Box>
-
-      <Group mb="md" justify="space-between">
-        <Group>
-          <TextInput
-            placeholder="Search expenses..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.currentTarget.value)}
-            flex={1}
-            miw={200}
-          />
-          <Select
-            value={sort}
-            onChange={handleSortChange}
-            data={[
-              { value: 'date', label: 'Date' },
-              { value: 'amount', label: 'Amount' },
-              { value: 'merchant', label: 'Merchant' },
-            ]}
-            w={120}
-          />
-          <Select
-            value={dir}
-            onChange={handleDirChange}
-            data={[
-              { value: 'desc', label: 'Descending' },
-              { value: 'asc', label: 'Ascending' },
-            ]}
-            w={150}
-          />
-        </Group>
-      </Group>
 
       {paginatedExpenses.length === 0 ? (
         <Text c="dimmed" mt="md">No expenses found</Text>

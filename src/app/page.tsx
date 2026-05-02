@@ -29,14 +29,11 @@ export default async function Home() {
 
   return (
     <Container size="lg">
-      <Title order={2} mb="md">Overview</Title>
+      <Title order={2} mb="md">Overview{stats ? ` ${stats.monthName}` : ''}</Title>
 
       {stats && (
-        <SimpleGrid cols={{ base: 2, sm: 4 }} mb="lg">
-          <Card p="md" withBorder>
-            <Text size="xs" c="dimmed">Total {stats.monthName}</Text>
-            <Text size="xl" fw={700}>{formatCurrency(stats.totalSpend)}</Text>
-          </Card>
+        <SimpleGrid cols={{ base: 2, sm: 3 }} mb="lg">
+
           <Card p="md" withBorder>
             <Text size="xs" c="dimmed">Transactions</Text>
             <Text size="xl" fw={700}>{stats.transactionCount}</Text>
@@ -52,7 +49,7 @@ export default async function Home() {
         </SimpleGrid>
       )}
 
-      <Title order={3} mb="md">Recent Expenses</Title>
+      <Title order={3} mb="md">Last 10 Expenses</Title>
 
       {recentExpenses.length === 0 ? (
         <Text c="dimmed">No expenses found</Text>
