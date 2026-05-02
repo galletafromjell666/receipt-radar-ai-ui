@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-http';
 import { expenses } from './schema';
-import { eq, ilike, desc, asc, count, sum, avg, max } from 'drizzle-orm';
+import { eq, ilike, desc, asc, count, sum, avg, max, gte } from 'drizzle-orm';
 
 const db = drizzle(process.env.NEON_DATABASE_URL!);
 
@@ -9,6 +9,7 @@ export interface MonthlyStats {
   transactionCount: number;
   topCategory: string | null;
   averageAmount: number;
+  monthName: string;
 }
 
 export interface GetExpensesParams {
@@ -125,12 +126,18 @@ export async function updateExpense(id: number, data: {
 
 export async function getMonthlyStats(): Promise<MonthlyStats> {
   try {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthName = now.toLocaleString('en-US', { month: 'long' });
+
     const result = await db.select({
       totalSpend: sum(expenses.amount),
       transactionCount: count(),
       topCategory: max(expenses.category),
       averageAmount: avg(expenses.amount),
-    }).from(expenses);
+    })
+    .from(expenses)
+    .where(gte(expenses.date, startOfMonth));
 
     const row = result[0];
     return {
@@ -138,6 +145,7 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
       transactionCount: Number(row?.transactionCount) || 0,
       topCategory: row?.topCategory || null,
       averageAmount: Number(row?.averageAmount) || 0,
+      monthName,
     };
   } catch (e) {
     console.error('getMonthlyStats error:', e);
@@ -146,6 +154,7 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
       transactionCount: 0,
       topCategory: null,
       averageAmount: 0,
+      monthName: new Date().toLocaleString('en-US', { month: 'long' }),
     };
   }
 }

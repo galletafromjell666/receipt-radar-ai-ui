@@ -42,7 +42,7 @@ export default async function Home() {
             marginBottom: '1.5rem'
           }}>
             <Box p="md" style={{ border: '1px solid var(--mantine-color-default-border)', borderRadius: '0.5rem' }}>
-              <Text size="xs" c="dimmed">Total This Month</Text>
+              <Text size="xs" c="dimmed">Total {stats.monthName}</Text>
               <Text size="xl" fw={700}>{formatCurrency(stats.totalSpend)}</Text>
             </Box>
             <Box p="md" style={{ border: '1px solid var(--mantine-color-default-border)', borderRadius: '0.5rem' }}>
