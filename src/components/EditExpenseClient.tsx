@@ -1,8 +1,7 @@
 'use client';
 
-import { Container, Title, TextInput, NumberInput, Select, Textarea, Button, Group, Stack, Paper, Alert } from '@mantine/core';
+import { Container, Title, TextInput, NumberInput, Select, Textarea, Button, Group, Stack, Paper } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { AppShellWrapper } from '@/components/AppShellWrapper';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Expense } from '@/lib/schema';
@@ -62,58 +61,56 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
   };
 
   return (
-    <AppShellWrapper>
-      <Container size="sm">
-        <Title order={2} mb="md">Edit Expense</Title>
+    <Container size="sm">
+      <Title order={2} mb="md">Edit Expense</Title>
 
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Paper withBorder p="md" radius="md">
-            <Stack>
-              <TextInput
-                label="Merchant"
-                {...form.getInputProps('merchant')}
-              />
-              <TextInput
-                label="Category"
-                {...form.getInputProps('category')}
-              />
-              <NumberInput
-                label="Amount"
-                {...form.getInputProps('amount')}
-              />
-              <Select
-                label="Currency"
-                data={['USD', 'EUR', 'GBP', 'CAD', 'AUD']}
-                {...form.getInputProps('currency')}
-              />
-              <TextInput
-                label="Source"
-                {...form.getInputProps('source')}
-              />
-              <TextInput
-                label="Account"
-                {...form.getInputProps('account')}
-              />
-              <Textarea
-                label="Description"
-                {...form.getInputProps('description')}
-              />
-              <Group justify="flex-end">
-                <Button variant="default" onClick={() => router.back()}>
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  loading={loading}
-                  disabled={!form.isDirty()}
-                >
-                  Save
-                </Button>
-              </Group>
-            </Stack>
-          </Paper>
-        </form>
-      </Container>
-    </AppShellWrapper>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Paper withBorder p="md" radius="md">
+          <Stack>
+            <TextInput
+              label="Merchant"
+              {...form.getInputProps('merchant')}
+            />
+            <TextInput
+              label="Category"
+              {...form.getInputProps('category')}
+            />
+            <NumberInput
+              label="Amount"
+              {...form.getInputProps('amount')}
+            />
+            <Select
+              label="Currency"
+              data={['USD', 'EUR', 'GBP', 'CAD', 'AUD']}
+              {...form.getInputProps('currency')}
+            />
+            <TextInput
+              label="Source"
+              {...form.getInputProps('source')}
+            />
+            <TextInput
+              label="Account"
+              {...form.getInputProps('account')}
+            />
+            <Textarea
+              label="Description"
+              {...form.getInputProps('description')}
+            />
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => router.back()}>
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                loading={loading}
+                disabled={!form.isDirty()}
+              >
+                Save
+              </Button>
+            </Group>
+          </Stack>
+        </Paper>
+      </form>
+    </Container>
   );
 }

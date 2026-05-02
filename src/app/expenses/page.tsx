@@ -1,6 +1,5 @@
-import { Container, Title, Alert } from '@mantine/core';
-import { AppShellWrapper } from '@/components/AppShellWrapper';
-import { getExpensesByMonth, getMonthsWithData, Expense } from '@/lib/db';
+import { Container, Title } from '@mantine/core';
+import { getExpensesByMonth, getMonthsWithData } from '@/lib/db';
 import { ExpensesClient } from '@/components/ExpensesClient';
 
 function getCurrentMonth(): string {
@@ -22,16 +21,14 @@ export default async function ExpensesPage({
   ]);
 
   return (
-    <AppShellWrapper>
-      <Container size="lg">
-        <Title order={2} mb="md">All Expenses</Title>
-        <ExpensesClient
-          initialExpenses={allExpenses}
-          monthsWithData={monthsWithData}
-          currentMonth={month}
-          basePath="/expenses"
-        />
-      </Container>
-    </AppShellWrapper>
+    <Container size="lg">
+      <Title order={2} mb="md">All Expenses</Title>
+      <ExpensesClient
+        initialExpenses={allExpenses}
+        monthsWithData={monthsWithData}
+        currentMonth={month}
+        basePath="/expenses"
+      />
+    </Container>
   );
 }

@@ -1,5 +1,4 @@
 import { Container, Alert } from '@mantine/core';
-import { AppShellWrapper } from '@/components/AppShellWrapper';
 import { getExpenseById } from '@/lib/db';
 import { EditExpenseClient } from '@/components/EditExpenseClient';
 import { notFound } from 'next/navigation';
@@ -27,13 +26,11 @@ export default async function EditExpensePage({
 
   if (error) {
     return (
-      <AppShellWrapper>
-        <Container size="sm">
-          <Alert title="Error" color="red" mt="md">
-            {error}
-          </Alert>
-        </Container>
-      </AppShellWrapper>
+      <Container size="sm">
+        <Alert title="Error" color="red" mt="md">
+          {error}
+        </Alert>
+      </Container>
     );
   }
 

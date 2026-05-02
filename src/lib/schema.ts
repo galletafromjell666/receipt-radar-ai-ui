@@ -15,4 +15,3 @@ export const expenses = pgTable('expenses', {
 });
 
 export type Expense = typeof expenses.$inferSelect;
-export type NewExpense = typeof expenses.$inferInsert;
