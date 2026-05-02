@@ -1,25 +1,11 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 * {
   box-sizing: border-box;
 }
 
 .expense-card {
-  padding: 1rem;
-  border: 1px solid var(--mantine-color-default-border);
-  border-radius: 0.5rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer;
-  transition: background-color 0.2s;
+  text-decoration: none;
 }
 
 .expense-card:hover {

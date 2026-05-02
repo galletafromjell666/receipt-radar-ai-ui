@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { TextInput, Group, Select, Text, Box, Card } from '@mantine/core';
 import { Expense } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
@@ -20,6 +21,7 @@ export function ExpensesClient({
   currentMonth,
   basePath,
 }: ExpensesClientProps) {
+  const router = useRouter();
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'date' | 'amount' | 'merchant'>('date');
   const [dir, setDir] = useState<'asc' | 'desc'>('desc');
@@ -29,7 +31,6 @@ export function ExpensesClient({
   const filteredAndSortedExpenses = useMemo(() => {
     let result = [...initialExpenses];
 
-    // Filter by search
     if (search.trim()) {
       const s = search.toLowerCase();
       result = result.filter(
@@ -41,7 +42,6 @@ export function ExpensesClient({
       );
     }
 
-    // Sort
     result.sort((a, b) => {
       let cmp = 0;
       if (sort === 'date') {
@@ -65,7 +65,6 @@ export function ExpensesClient({
     page * limit
   );
 
-  // Reset page when search/sort/month changes
   const handleSearchChange = (value: string) => {
     setSearch(value);
     setPage(1);
@@ -84,10 +83,9 @@ export function ExpensesClient({
   const handleMonthChange = (newMonth: string) => {
     setMonth(newMonth);
     setPage(1);
-    window.location.href = `${basePath}?month=${newMonth}`;
+    router.push(`${basePath}?month=${newMonth}`);
   };
 
-  // Stats
   const totalSpend = filteredAndSortedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
   const transactionCount = filteredAndSortedExpenses.length;
   const averageAmount = transactionCount > 0 ? totalSpend / transactionCount : 0;
@@ -102,9 +100,8 @@ export function ExpensesClient({
 
   return (
     <>
-      {/* Month Stats */}
       <Box mb="md">
-        <Card p="md">
+        <Card p="md" withBorder>
           <Group justify="space-between" wrap="wrap" gap="md">
             <Box>
               <Text size="xs" c="dimmed">Total {month}</Text>
@@ -134,7 +131,8 @@ export function ExpensesClient({
             placeholder="Search expenses..."
             value={search}
             onChange={(e) => handleSearchChange(e.currentTarget.value)}
-            style={{ flex: 1, minWidth: 200 }}
+            flex={1}
+            miw={200}
           />
           <Select
             value={sort}
@@ -167,7 +165,7 @@ export function ExpensesClient({
           total={total}
           page={page}
           limit={limit}
-          basePath={`${basePath}?month=${month}`}
+          onPageChange={setPage}
         />
       )}
     </>

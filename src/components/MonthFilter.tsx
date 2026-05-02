@@ -1,7 +1,6 @@
 'use client';
 
 import { Select } from '@mantine/core';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 interface MonthFilterProps {
   currentMonth: string;
@@ -16,19 +15,10 @@ function getMonthLabel(monthStr: string): string {
 }
 
 export function MonthFilter({ currentMonth, monthsWithData, onMonthChange }: MonthFilterProps) {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
-
   const handleChange = (value: string | null) => {
     const newMonth = value || currentMonth;
     if (onMonthChange) {
       onMonthChange(newMonth);
-    } else {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set('month', newMonth);
-      params.delete('page');
-      replace(`${pathname}?${params.toString()}`);
     }
   };
 
