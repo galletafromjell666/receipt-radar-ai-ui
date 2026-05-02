@@ -8,6 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 import { ExpenseList } from '@/components/ExpenseList';
 import { MonthFilter } from '@/components/MonthFilter';
 import { DailySpendingChart } from '@/components/DailySpendingChart';
+import { CategoryBreakdownChart } from '@/components/CategoryBreakdownChart';
 
 interface ExpensesClientProps {
   initialExpenses: Expense[];
@@ -102,6 +103,10 @@ export function ExpensesClient({
   return (
     <>
       <Box mb="md">
+        <MonthFilter currentMonth={month} monthsWithData={monthsWithData} onMonthChange={handleMonthChange} />
+      </Box>
+
+      <Box mb="md">
         <Card p="md" withBorder>
           <Group justify="space-between" wrap="wrap" gap="md">
             <Box>
@@ -128,6 +133,9 @@ export function ExpensesClient({
 
       <Box mb="md">
         <DailySpendingChart expenses={filteredAndSortedExpenses} month={month} />
+      </Box>
+      <Box mb="md">
+        <CategoryBreakdownChart expenses={filteredAndSortedExpenses} />
       </Box>
 
       <Group mb="md" justify="space-between">
@@ -159,7 +167,6 @@ export function ExpensesClient({
             w={150}
           />
         </Group>
-        <MonthFilter currentMonth={month} monthsWithData={monthsWithData} onMonthChange={handleMonthChange} />
       </Group>
 
       {paginatedExpenses.length === 0 ? (

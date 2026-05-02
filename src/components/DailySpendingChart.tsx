@@ -37,10 +37,10 @@ export function DailySpendingChart({ expenses, month }: DailySpendingChartProps)
   }
 
   return (
-    <Card p="md" withBorder>
+    <Card p="md" withBorder h="100%">
       <Text size="sm" c="dimmed" mb="sm">Daily Spending</Text>
       <BarChart
-        h={250}
+        h={300}
         data={data}
         dataKey="day"
         type="stacked"
