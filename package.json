@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@mantine/charts": "9.1.1",
     "@mantine/core": "^9.1.1",
     "@mantine/form": "^9.1.1",
     "@mantine/hooks": "^9.1.1",

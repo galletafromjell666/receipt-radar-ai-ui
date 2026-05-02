@@ -1,5 +1,6 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
+import '@mantine/charts/styles.css';
 import './globals.css';
 import type { Metadata } from 'next';
 import { AppShellWrapper } from '@/components/AppShellWrapper';

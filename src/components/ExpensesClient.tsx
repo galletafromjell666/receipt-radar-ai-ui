@@ -7,6 +7,7 @@ import { Expense } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { ExpenseList } from '@/components/ExpenseList';
 import { MonthFilter } from '@/components/MonthFilter';
+import { DailySpendingChart } from '@/components/DailySpendingChart';
 
 interface ExpensesClientProps {
   initialExpenses: Expense[];
@@ -123,6 +124,10 @@ export function ExpensesClient({
             )}
           </Group>
         </Card>
+      </Box>
+
+      <Box mb="md">
+        <DailySpendingChart expenses={filteredAndSortedExpenses} month={month} />
       </Box>
 
       <Group mb="md" justify="space-between">
