@@ -92,13 +92,13 @@ export function ExpensesClient({
   const transactionCount = filteredAndSortedExpenses.length;
   const averageAmount = transactionCount > 0 ? totalSpend / transactionCount : 0;
 
-  const categoryCounts: Record<string, number> = {};
+  const categoryTotals: Record<string, number> = {};
   for (const exp of filteredAndSortedExpenses) {
     if (exp.category) {
-      categoryCounts[exp.category] = (categoryCounts[exp.category] || 0) + 1;
+      categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
     }
   }
-  const topCategory = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+  const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
   return (
     <>

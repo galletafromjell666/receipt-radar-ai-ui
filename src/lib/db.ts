@@ -96,12 +96,12 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
 
       db.select({
         category: expenses.category,
-        catCount: count(),
+        catSum: sum(expenses.amount),
       })
       .from(expenses)
       .where(gte(expenses.date, startOfMonth))
       .groupBy(expenses.category)
-      .orderBy(desc(count()))
+      .orderBy(desc(sum(expenses.amount)))
       .limit(1),
     ]);
 

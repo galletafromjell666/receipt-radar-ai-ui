@@ -32,8 +32,11 @@ export default async function Home() {
       <Title order={2} mb="md">Overview{stats ? ` ${stats.monthName}` : ''}</Title>
 
       {stats && (
-        <SimpleGrid cols={{ base: 2, sm: 3 }} mb="lg">
-
+        <SimpleGrid cols={{ base: 2, sm: 4 }} mb="lg">
+          <Card p="md" withBorder>
+            <Text size="xs" c="dimmed">Total</Text>
+            <Text size="xl" fw={700}>{formatCurrency(stats.totalSpend)}</Text>
+          </Card>
           <Card p="md" withBorder>
             <Text size="xs" c="dimmed">Transactions</Text>
             <Text size="xl" fw={700}>{stats.transactionCount}</Text>
