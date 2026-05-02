@@ -4,10 +4,22 @@
 
 .expense-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
-  text-decoration: none;
 }
 
 .expense-card:hover {
   background-color: var(--mantine-color-dark-5);
+}
+
+.expense-card-edit {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .expense-card-edit {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .expense-card:hover .expense-card-edit {
+    opacity: 1;
+  }
 }

@@ -1,4 +1,4 @@
-import { Container, Title, Text, Alert, Stack, Card, SimpleGrid, Anchor } from '@mantine/core';
+import { Container, Title, Text, Alert, Stack, Card, SimpleGrid, Group, Button } from '@mantine/core';
 import { getMonthlyStats, getRecentExpenses, type Expense } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { ExpenseCard } from '@/components/ExpenseCard';
@@ -63,9 +63,9 @@ export default async function Home() {
               <ExpenseCard key={expense.id} expense={expense} />
             ))}
           </Stack>
-          <Text mt="md">
-            <Anchor href="/expenses">View all expenses</Anchor>
-          </Text>
+          <Group justify="center" mt="md">
+            <Button component="a" href="/expenses" variant="light">View all expenses</Button>
+          </Group>
         </>
       )}
     </Container>
