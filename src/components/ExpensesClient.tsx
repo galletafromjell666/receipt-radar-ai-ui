@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { TextInput, Group, Select, Text, Box } from '@mantine/core';
+import { TextInput, Group, Select, Text, Box, Card } from '@mantine/core';
 import { Expense } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { ExpenseList } from '@/components/ExpenseList';
@@ -104,14 +104,7 @@ export function ExpensesClient({
     <>
       {/* Month Stats */}
       <Box mb="md">
-        <Box
-          p="md"
-          style={{
-            border: '1px solid var(--mantine-color-default-border)',
-            borderRadius: '0.5rem',
-            background: 'var(--mantine-color-gray-0)',
-          }}
-        >
+        <Card p="md">
           <Group justify="space-between" wrap="wrap" gap="md">
             <Box>
               <Text size="xs" c="dimmed">Total {month}</Text>
@@ -132,7 +125,7 @@ export function ExpensesClient({
               </Box>
             )}
           </Group>
-        </Box>
+        </Card>
       </Box>
 
       <Group mb="md" justify="space-between">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, Pagination, Box, Group, Text, Badge, Anchor } from '@mantine/core';
+import { Stack, Pagination, Card, Group, Text, Badge, Anchor } from '@mantine/core';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import type { Expense } from '@/lib/db';
 import { useSearchParams, usePathname } from 'next/navigation';
@@ -21,18 +21,13 @@ export function ExpenseList({ expenses, total, page, limit, basePath }: ExpenseL
     <>
       <Stack gap="sm" mt="md">
         {expenses.map((expense) => (
-          <Box
+          <Card
             key={expense.id}
             component="a"
             href={`/expenses/${expense.id}`}
             p="md"
-            style={{
-              border: '1px solid var(--mantine-color-default-border)',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              display: 'block',
-              textDecoration: 'none',
-            }}
+            withBorder
+            style={{ transition: 'transform 0.15s ease, box-shadow 0.15s ease', cursor: 'pointer' }}
             className="expense-card"
           >
             <Group justify="space-between" wrap="nowrap">
@@ -57,7 +52,7 @@ export function ExpenseList({ expenses, total, page, limit, basePath }: ExpenseL
                 {formatCurrency(expense.amount, expense.currency || 'USD')}
               </Text>
             </Group>
-          </Box>
+          </Card>
         ))}
       </Stack>
 
