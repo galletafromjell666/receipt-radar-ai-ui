@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Receipt Radar AI Frontend
 
-## Getting Started
+Frontend for the AI-powered expense tracker. Connects to NeonDB via Drizzle ORM.
 
-First, run the development server:
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env` file:
+```
+NEON_DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Timezone Fix (IMPORTANT)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Issue**: Dates from the database are stored in local time (CST/GMT-6, El Salvador) but JavaScript parses them as UTC, causing dates to show as the previous day.
 
-## Learn More
+**Current Workaround**: Frontend adds +6 hours offset when formatting dates.
 
-To learn more about Next.js, take a look at the following resources:
+**Proper Fix**: Update the Python backend to store dates as UTC:
+- In `src/models.py`, change the date column to use timezone-aware timestamps:
+```python
+from datetime import datetime, timezone
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Once the backend is fixed, remove the `+ (6 * 60 * 60 * 1000)` offset in:
+- `src/app/page.tsx` (formatDate function)
+- `src/components/ExpenseCard.tsx` (formatDate function)
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Next.js 16
+- React 19
+- Mantine v9 (UI)
+- Drizzle ORM (DB queries via neon-http)
+- Neon PostgreSQL
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Routes
+
+- `/` — Overview with stats and recent expenses
+- `/expenses` — Full expense list with search/sort/pagination
+- `/expenses/[id]` — Edit expense form
