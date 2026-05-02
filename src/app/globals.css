@@ -4,6 +4,8 @@
 
 .expense-card {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
 }
 
 .expense-card:hover {
