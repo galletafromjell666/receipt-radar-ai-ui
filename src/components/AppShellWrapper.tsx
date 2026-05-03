@@ -1,7 +1,7 @@
 'use client';
 
 import { MantineProvider, AppShell, Group, Text, Button } from '@mantine/core';
-import { IconHome, IconReceipt } from '@tabler/icons-react';
+import { IconHome, IconReceipt, IconPlus } from '@tabler/icons-react';
 import { Notifications } from '@mantine/notifications';
 
 export function AppShellWrapper({ children }: { children: React.ReactNode }) {
@@ -14,6 +14,7 @@ export function AppShellWrapper({ children }: { children: React.ReactNode }) {
             <Text size="lg" fw={700}>Receipt Radar AI</Text>
             <Button component="a" href="/" variant="light" ml="xl" leftSection={<IconHome size={16} />}>Overview</Button>
             <Button component="a" href="/expenses" variant="light" leftSection={<IconReceipt size={16} />}>Expenses</Button>
+            <Button component="a" href="/expenses/new" variant="filled" leftSection={<IconPlus size={16} />}>New Expense</Button>
           </Group>
         </AppShell.Header>
         <AppShell.Main>{children}</AppShell.Main>

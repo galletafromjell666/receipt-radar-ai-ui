@@ -125,6 +125,33 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
   }
 }
 
+export async function insertExpense(data: {
+  date: Date | null;
+  merchant: string;
+  category: string;
+  amount: number;
+  source: string;
+  account: string;
+  description: string;
+}): Promise<Expense | null> {
+  try {
+    const result = await db.insert(expenses).values({
+      date: data.date ? new Date(data.date) : new Date(),
+      merchant: data.merchant || null,
+      category: data.category || null,
+      amount: data.amount,
+      currency: 'USD',
+      source: data.source || null,
+      account: data.account || null,
+      description: data.description || null,
+    }).returning();
+    return result[0] || null;
+  } catch (e) {
+    console.error('insertExpense error:', e);
+    return null;
+  }
+}
+
 export async function getRecentExpenses(limit: number = 10): Promise<Expense[]> {
   try {
     const result = await db.select().from(expenses).orderBy(desc(expenses.date)).limit(limit);

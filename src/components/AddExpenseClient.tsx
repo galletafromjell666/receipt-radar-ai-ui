@@ -1,30 +1,25 @@
 'use client';
 
-import { Container, Title, Button, Group } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { Expense } from '@/lib/schema';
 import { notifications } from '@mantine/notifications';
 import { ExpenseForm, type ExpenseFormValues } from '@/components/ExpenseForm';
 
-interface EditExpensePageProps {
-  expense: Expense;
-}
-
-export function EditExpenseClient({ expense }: EditExpensePageProps) {
+export function AddExpenseClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
-      date: expense.date ? new Date(expense.date) : new Date(),
-      merchant: expense.merchant || '',
-      category: expense.category || '',
-      amount: expense.amount,
-      source: expense.source || '',
-      account: expense.account || '',
-      description: expense.description || '',
+      date: new Date(),
+      merchant: '',
+      category: 'other',
+      amount: 0,
+      source: '',
+      account: '',
+      description: '',
     } satisfies ExpenseFormValues,
   });
 
@@ -32,28 +27,27 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/expenses/${expense.id}`, {
-        method: 'PATCH',
+      const res = await fetch('/api/expenses', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, currency: 'USD' }),
+        body: JSON.stringify(values),
       });
 
       if (!res.ok) {
-        throw new Error('Failed to update expense');
+        throw new Error('Failed to create expense');
       }
 
       notifications.show({
         title: 'Success',
-        message: 'Expense updated successfully',
+        message: 'Expense created successfully',
         color: 'green',
       });
 
-      form.reset();
-      router.push(`/expenses/${expense.id}`);
+      router.push('/expenses');
     } catch (e) {
       notifications.show({
         title: 'Error',
-        message: e instanceof Error ? e.message : 'Failed to update',
+        message: e instanceof Error ? e.message : 'Failed to create expense',
         color: 'red',
       });
     } finally {
@@ -63,15 +57,14 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
 
   return (
     <Container size="sm">
-      <Title order={2} mb="md">Edit Expense</Title>
+      <Title order={2} mb="md">New Expense</Title>
 
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <ExpenseForm
           form={form}
           loading={loading}
-          submitLabel="Save"
-          onCancel={() => router.back()}
-          disableSubmitWhenClean
+          submitLabel="Add Expense"
+          onCancel={() => router.push('/expenses')}
         />
       </form>
     </Container>
