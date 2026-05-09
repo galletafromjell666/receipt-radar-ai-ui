@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/neon-http';
-import { expenses } from './schema';
+import { expenses, categories } from './schema';
 import { eq, desc, count, sum, avg, gte, lte, and, sql } from 'drizzle-orm';
-import type { Expense } from './schema';
+import type { Expense, Category } from './schema';
 
 if (!process.env.NEON_DATABASE_URL) {
   throw new Error('NEON_DATABASE_URL environment variable is not set');
@@ -17,30 +17,58 @@ export interface MonthlyStats {
   monthName: string;
 }
 
-export type { Expense };
+export type ExpenseWithCategory = Expense & { categoryName: string | null };
 
-export async function getExpensesByMonth(month: string): Promise<Expense[]> {
+export type { Expense, Category };
+
+export async function getCategories(): Promise<Category[]> {
+  try {
+    return await db.select()
+      .from(categories)
+      .where(eq(categories.isActive, true))
+      .orderBy(categories.name);
+  } catch (e) {
+    console.error('getCategories error:', e);
+    return [];
+  }
+}
+
+export async function getExpensesByMonth(month: string): Promise<ExpenseWithCategory[]> {
   try {
     const [year, monthNum] = month.split('-').map(Number);
     const startOfMonth = new Date(year, monthNum - 1, 1);
     const endOfMonth = new Date(year, monthNum, 0, 23, 59, 59);
 
-    const result = await db.select()
+    const rows = await db.select()
       .from(expenses)
+      .leftJoin(categories, eq(expenses.categoryId, categories.id))
       .where(and(gte(expenses.date, startOfMonth), lte(expenses.date, endOfMonth)))
       .orderBy(desc(expenses.date));
 
-    return result;
+    return rows.map(row => ({
+      ...row.expenses,
+      categoryName: row.categories?.name ?? null,
+    }));
   } catch (e) {
     console.error('getExpensesByMonth error:', e);
     return [];
   }
 }
 
-export async function getExpenseById(id: number): Promise<Expense | null> {
+export async function getExpenseById(id: number): Promise<ExpenseWithCategory | null> {
   try {
-    const result = await db.select().from(expenses).where(eq(expenses.id, id));
-    return result[0] || null;
+    const rows = await db.select()
+      .from(expenses)
+      .leftJoin(categories, eq(expenses.categoryId, categories.id))
+      .where(eq(expenses.id, id));
+
+    const row = rows[0];
+    if (!row) return null;
+
+    return {
+      ...row.expenses,
+      categoryName: row.categories?.name ?? null,
+    };
   } catch (e) {
     console.error('getExpenseById error:', e);
     return null;
@@ -48,8 +76,9 @@ export async function getExpenseById(id: number): Promise<Expense | null> {
 }
 
 export async function updateExpense(id: number, data: {
+  date?: Date | string | null;
   merchant?: string;
-  category?: string;
+  categoryId?: number | null;
   amount?: number;
   currency?: string;
   source?: string;
@@ -57,10 +86,11 @@ export async function updateExpense(id: number, data: {
   description?: string;
 }): Promise<Expense | null> {
   try {
-    const updateData: Partial<typeof expenses.$inferInsert> = {};
+    const updateData: Record<string, unknown> = {};
 
+    if (data.date !== undefined) updateData.date = data.date ? new Date(data.date) : null;
     if (data.merchant !== undefined) updateData.merchant = data.merchant;
-    if (data.category !== undefined) updateData.category = data.category;
+    if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
     if (data.amount !== undefined) updateData.amount = data.amount;
     if (data.currency !== undefined) updateData.currency = data.currency;
     if (data.source !== undefined) updateData.source = data.source;
@@ -95,12 +125,13 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
       .where(gte(expenses.date, startOfMonth)),
 
       db.select({
-        category: expenses.category,
+        categoryName: categories.name,
         catSum: sum(expenses.amount),
       })
       .from(expenses)
+      .leftJoin(categories, eq(expenses.categoryId, categories.id))
       .where(gte(expenses.date, startOfMonth))
-      .groupBy(expenses.category)
+      .groupBy(categories.name)
       .orderBy(desc(sum(expenses.amount)))
       .limit(1),
     ]);
@@ -109,7 +140,7 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
     return {
       totalSpend: Number(agg?.totalSpend) || 0,
       transactionCount: Number(agg?.transactionCount) || 0,
-      topCategory: topCatResult[0]?.category || null,
+      topCategory: topCatResult[0]?.categoryName || null,
       averageAmount: Number(agg?.averageAmount) || 0,
       monthName,
     };
@@ -128,7 +159,7 @@ export async function getMonthlyStats(): Promise<MonthlyStats> {
 export async function insertExpense(data: {
   date: Date | null;
   merchant: string;
-  category: string;
+  categoryId: number | null;
   amount: number;
   source: string;
   account: string;
@@ -138,7 +169,7 @@ export async function insertExpense(data: {
     const result = await db.insert(expenses).values({
       date: data.date ? new Date(data.date) : new Date(),
       merchant: data.merchant || null,
-      category: data.category || null,
+      categoryId: data.categoryId,
       amount: data.amount,
       currency: 'USD',
       source: data.source || null,
@@ -152,10 +183,18 @@ export async function insertExpense(data: {
   }
 }
 
-export async function getRecentExpenses(limit: number = 10): Promise<Expense[]> {
+export async function getRecentExpenses(limit: number = 10): Promise<ExpenseWithCategory[]> {
   try {
-    const result = await db.select().from(expenses).orderBy(desc(expenses.date)).limit(limit);
-    return result;
+    const rows = await db.select()
+      .from(expenses)
+      .leftJoin(categories, eq(expenses.categoryId, categories.id))
+      .orderBy(desc(expenses.date))
+      .limit(limit);
+
+    return rows.map(row => ({
+      ...row.expenses,
+      categoryName: row.categories?.name ?? null,
+    }));
   } catch (e) {
     console.error('getRecentExpenses error:', e);
     return [];

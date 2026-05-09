@@ -5,9 +5,13 @@ import { useForm } from '@mantine/form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
-import { ExpenseForm, type ExpenseFormValues } from '@/components/ExpenseForm';
+import { ExpenseForm, getExpenseFormValidation, type ExpenseFormValues } from '@/components/ExpenseForm';
 
-export function AddExpenseClient() {
+interface AddExpenseClientProps {
+  categories: { id: number; name: string }[];
+}
+
+export function AddExpenseClient({ categories }: AddExpenseClientProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -15,12 +19,13 @@ export function AddExpenseClient() {
     initialValues: {
       date: new Date(),
       merchant: '',
-      category: 'other',
+      categoryId: null,
       amount: 0,
       source: '',
       account: '',
       description: '',
     } satisfies ExpenseFormValues,
+    validate: getExpenseFormValidation(),
   });
 
   const handleSubmit = async (values: ExpenseFormValues) => {
@@ -30,7 +35,10 @@ export function AddExpenseClient() {
       const res = await fetch('/api/expenses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          categoryId: values.categoryId ? Number(values.categoryId) : null,
+        }),
       });
 
       if (!res.ok) {
@@ -65,6 +73,7 @@ export function AddExpenseClient() {
           loading={loading}
           submitLabel="Add Expense"
           onCancel={() => router.push('/expenses')}
+          categories={categories}
         />
       </form>
     </Container>

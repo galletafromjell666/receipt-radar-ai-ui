@@ -3,12 +3,12 @@
 import { useMemo } from 'react';
 import { Card, Text } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
-import type { Expense } from '@/lib/db';
+import type { ExpenseWithCategory } from '@/lib/db';
 import { buildDailyCategoryData, assignCategoryColors } from '@/lib/chart-utils';
 import { formatCurrency } from '@/lib/utils';
 
 interface DailySpendingChartProps {
-  expenses: Expense[];
+  expenses: ExpenseWithCategory[];
   month: string;
 }
 

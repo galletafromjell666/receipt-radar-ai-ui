@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { TextInput, Group, Select, Text, Box, Card } from '@mantine/core';
-import { Expense } from '@/lib/db';
+import { ExpenseWithCategory } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { ExpenseList } from '@/components/ExpenseList';
 import { MonthFilter } from '@/components/MonthFilter';
@@ -11,7 +11,7 @@ import { DailySpendingChart } from '@/components/DailySpendingChart';
 import { CategoryBreakdownChart } from '@/components/CategoryBreakdownChart';
 
 interface ExpensesClientProps {
-  initialExpenses: Expense[];
+  initialExpenses: ExpenseWithCategory[];
   monthsWithData: string[];
   currentMonth: string;
   basePath: string;
@@ -38,7 +38,7 @@ export function ExpensesClient({
       result = result.filter(
         (exp) =>
           exp.merchant?.toLowerCase().includes(s) ||
-          exp.category?.toLowerCase().includes(s) ||
+          exp.categoryName?.toLowerCase().includes(s) ||
           exp.source?.toLowerCase().includes(s) ||
           exp.description?.toLowerCase().includes(s)
       );
@@ -94,8 +94,8 @@ export function ExpensesClient({
 
   const categoryTotals: Record<string, number> = {};
   for (const exp of filteredAndSortedExpenses) {
-    if (exp.category) {
-      categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
+    if (exp.categoryName) {
+      categoryTotals[exp.categoryName] = (categoryTotals[exp.categoryName] || 0) + exp.amount;
     }
   }
   const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null;

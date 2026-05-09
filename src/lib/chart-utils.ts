@@ -1,4 +1,4 @@
-import type { Expense } from './db';
+import type { ExpenseWithCategory } from './db';
 
 const CATEGORY_COLORS = [
   'blue.6', 'teal.6', 'red.6', 'yellow.6',
@@ -24,7 +24,7 @@ export function assignCategoryColors(categories: string[]): Record<string, strin
 }
 
 export function buildDailyCategoryData(
-  expenses: Expense[],
+  expenses: ExpenseWithCategory[],
   year: number,
   month: number
 ): { data: DayCategoryData[]; categories: string[] } {
@@ -32,10 +32,10 @@ export function buildDailyCategoryData(
 
   const normalized = expenses.map(e => ({
     ...e,
-    category: e.category || 'Uncategorized',
+    categoryName: e.categoryName || 'Uncategorized',
   }));
 
-  const allCategories = [...new Set(normalized.map(e => e.category))].sort();
+  const allCategories = [...new Set(normalized.map(e => e.categoryName))].sort();
 
   const lastDay = new Date(year, month, 0).getDate();
   const dayMap = new Map<number, DayCategoryData>();
@@ -50,8 +50,8 @@ export function buildDailyCategoryData(
     if (!exp.date) continue;
     const expDay = exp.date.getDate();
     const entry = dayMap.get(expDay);
-    if (entry && exp.category) {
-      entry[exp.category] = (entry[exp.category] || 0) + exp.amount;
+    if (entry && exp.categoryName) {
+      entry[exp.categoryName] = (entry[exp.categoryName] || 0) + exp.amount;
     }
   }
 
@@ -59,12 +59,12 @@ export function buildDailyCategoryData(
 }
 
 export function buildCategoryTotals(
-  expenses: Expense[],
+  expenses: ExpenseWithCategory[],
   colorMap: Record<string, string>
 ): CategoryTotal[] {
   const totals: Record<string, number> = {};
   for (const exp of expenses) {
-    const cat = exp.category || 'Uncategorized';
+    const cat = exp.categoryName || 'Uncategorized';
     totals[cat] = (totals[cat] || 0) + exp.amount;
   }
 

@@ -3,17 +3,17 @@
 import { useMemo } from 'react';
 import { Card, Text, Group, Box } from '@mantine/core';
 import { DonutChart } from '@mantine/charts';
-import type { Expense } from '@/lib/db';
+import type { ExpenseWithCategory } from '@/lib/db';
 import { buildCategoryTotals, assignCategoryColors } from '@/lib/chart-utils';
 import { formatCurrency } from '@/lib/utils';
 
 interface CategoryBreakdownChartProps {
-  expenses: Expense[];
+  expenses: ExpenseWithCategory[];
 }
 
 export function CategoryBreakdownChart({ expenses }: CategoryBreakdownChartProps) {
   const categories = useMemo(
-    () => [...new Set(expenses.map(e => e.category || 'Uncategorized'))].sort(),
+    () => [...new Set(expenses.map(e => e.categoryName || 'Uncategorized'))].sort(),
     [expenses]
   );
 

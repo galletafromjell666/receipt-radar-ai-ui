@@ -1,18 +1,19 @@
 'use client';
 
-import { Container, Title, Button, Group } from '@mantine/core';
+import { Container, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Expense } from '@/lib/schema';
 import { notifications } from '@mantine/notifications';
-import { ExpenseForm, type ExpenseFormValues } from '@/components/ExpenseForm';
+import { ExpenseForm, getExpenseFormValidation, type ExpenseFormValues } from '@/components/ExpenseForm';
 
 interface EditExpensePageProps {
   expense: Expense;
+  categories: { id: number; name: string }[];
 }
 
-export function EditExpenseClient({ expense }: EditExpensePageProps) {
+export function EditExpenseClient({ expense, categories }: EditExpensePageProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -20,12 +21,13 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
     initialValues: {
       date: expense.date ? new Date(expense.date) : new Date(),
       merchant: expense.merchant || '',
-      category: expense.category || '',
+      categoryId: expense.categoryId ? String(expense.categoryId) : null,
       amount: expense.amount,
       source: expense.source || '',
       account: expense.account || '',
       description: expense.description || '',
     } satisfies ExpenseFormValues,
+    validate: getExpenseFormValidation(),
   });
 
   const handleSubmit = async (values: ExpenseFormValues) => {
@@ -35,7 +37,11 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
       const res = await fetch(`/api/expenses/${expense.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, currency: 'USD' }),
+        body: JSON.stringify({
+          ...values,
+          categoryId: values.categoryId ? Number(values.categoryId) : null,
+          currency: 'USD',
+        }),
       });
 
       if (!res.ok) {
@@ -48,8 +54,7 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
         color: 'green',
       });
 
-      form.reset();
-      router.push(`/expenses/${expense.id}`);
+      router.push('/expenses');
     } catch (e) {
       notifications.show({
         title: 'Error',
@@ -72,6 +77,7 @@ export function EditExpenseClient({ expense }: EditExpensePageProps) {
           submitLabel="Save"
           onCancel={() => router.back()}
           disableSubmitWhenClean
+          categories={categories}
         />
       </form>
     </Container>

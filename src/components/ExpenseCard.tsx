@@ -3,9 +3,9 @@
 import { Card, Group, Text, Badge, ActionIcon } from '@mantine/core';
 import { IconPencil } from '@tabler/icons-react';
 import { formatDate, formatCurrency } from '@/lib/utils';
-import type { Expense } from '@/lib/db';
+import type { ExpenseWithCategory } from '@/lib/db';
 
-export function ExpenseCard({ expense }: { expense: Expense }) {
+export function ExpenseCard({ expense }: { expense: ExpenseWithCategory }) {
   return (
     <Card component="a" href={`/expenses/${expense.id}`} p="md" withBorder className="expense-card">
       <Group justify="space-between" wrap="nowrap">
@@ -15,8 +15,8 @@ export function ExpenseCard({ expense }: { expense: Expense }) {
             {expense.merchant || 'Unknown'}
           </Text>
           <Group gap="xs" mt={4}>
-            {expense.category && (
-              <Badge size="sm" variant="light">{expense.category}</Badge>
+            {expense.categoryName && (
+              <Badge size="sm" variant="light">{expense.categoryName}</Badge>
             )}
             {expense.source && (
               <Text size="xs" c="dimmed">{expense.source}</Text>

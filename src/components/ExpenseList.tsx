@@ -2,10 +2,10 @@
 
 import { Stack, Pagination, Group } from '@mantine/core';
 import { ExpenseCard } from './ExpenseCard';
-import type { Expense } from '@/lib/db';
+import type { ExpenseWithCategory } from '@/lib/db';
 
 interface ExpenseListProps {
-  expenses: Expense[];
+  expenses: ExpenseWithCategory[];
   total: number;
   page: number;
   limit: number;

@@ -1,11 +1,11 @@
 import { Container, Title, Text, Alert, Stack, Card, SimpleGrid, Group, Button } from '@mantine/core';
-import { getMonthlyStats, getRecentExpenses, type Expense } from '@/lib/db';
+import { getMonthlyStats, getRecentExpenses, type ExpenseWithCategory } from '@/lib/db';
 import { formatCurrency } from '@/lib/utils';
 import { ExpenseCard } from '@/components/ExpenseCard';
 
 export default async function Home() {
   let stats = null;
-  let recentExpenses: Expense[] = [];
+  let recentExpenses: ExpenseWithCategory[] = [];
   let error = null;
 
   try {

@@ -1,5 +1,5 @@
 import { Container, Alert } from '@mantine/core';
-import { getExpenseById } from '@/lib/db';
+import { getExpenseById, getCategories } from '@/lib/db';
 import { EditExpenseClient } from '@/components/EditExpenseClient';
 import { notFound } from 'next/navigation';
 
@@ -19,7 +19,9 @@ export default async function EditExpensePage({
   let error = null;
 
   try {
-    expense = await getExpenseById(expenseId);
+    [expense] = await Promise.all([
+      getExpenseById(expenseId),
+    ]);
   } catch (e) {
     error = e instanceof Error ? e.message : 'Failed to load expense';
   }
@@ -38,5 +40,7 @@ export default async function EditExpensePage({
     notFound();
   }
 
-  return <EditExpenseClient expense={expense} />;
+  const categories = await getCategories();
+
+  return <EditExpenseClient expense={expense} categories={categories} />;
 }
