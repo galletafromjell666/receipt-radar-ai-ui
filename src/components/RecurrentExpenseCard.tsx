@@ -20,6 +20,9 @@ export function RecurrentExpenseCard({ expense, onApply, onDelete, loading }: Re
           <Text fw={600} size="lg" truncate maw={200}>
             {expense.merchant || 'Unknown'}
           </Text>
+          {expense.description && (
+            <Text size="sm" c="dimmed" truncate maw={200}>{expense.description}</Text>
+          )}
           <Group gap="xs" mt={4}>
             {expense.categoryName && (
               <Badge size="sm" variant="light">{expense.categoryName}</Badge>
