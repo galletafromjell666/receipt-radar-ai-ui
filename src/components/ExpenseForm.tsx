@@ -13,9 +13,9 @@ export interface ExpenseFormValues {
   description: string;
 }
 
-export function getExpenseFormValidation() {
+export function getExpenseFormValidation(opts?: { hideDate?: boolean }) {
   return {
-    date: (v: Date | null) => (v ? null : 'Date is required'),
+    date: opts?.hideDate ? undefined : (v: Date | null) => (v ? null : 'Date is required'),
     merchant: (v: string) => (v.trim().length > 0 ? null : 'Merchant is required'),
     categoryId: (v: string | null) => (v ? null : 'Category is required'),
     amount: (v: number) => (v > 0 ? null : 'Amount is required'),
@@ -36,15 +36,16 @@ interface ExpenseFormProps {
   onCancel: () => void;
   disableSubmitWhenClean?: boolean;
   categories: { id: number; name: string }[];
+  hideDate?: boolean;
 }
 
-export function ExpenseForm({ form, loading, submitLabel, onCancel, disableSubmitWhenClean, categories }: ExpenseFormProps) {
+export function ExpenseForm({ form, loading, submitLabel, onCancel, disableSubmitWhenClean, categories, hideDate }: ExpenseFormProps) {
   const isDisabled = !form.isValid() || (disableSubmitWhenClean && !form.isDirty());
 
   return (
     <Paper withBorder p="md" radius="md">
       <Stack>
-        <DatePickerInput label="Date" {...form.getInputProps('date')} />
+        {!hideDate && <DatePickerInput label="Date" {...form.getInputProps('date')} />}
         <TextInput label="Merchant" {...form.getInputProps('merchant')} />
         <Select
           label="Category"

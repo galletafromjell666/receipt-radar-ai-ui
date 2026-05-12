@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/neon-http';
-import { expenses, categories } from './schema';
+import { expenses, categories, recurrentExpenses } from './schema';
 import { eq, desc, count, sum, avg, gte, lte, and, sql } from 'drizzle-orm';
-import type { Expense, Category } from './schema';
+import type { Expense, Category, RecurrentExpense } from './schema';
 
 if (!process.env.NEON_DATABASE_URL) {
   throw new Error('NEON_DATABASE_URL environment variable is not set');
@@ -19,7 +19,9 @@ export interface MonthlyStats {
 
 export type ExpenseWithCategory = Expense & { categoryName: string | null };
 
-export type { Expense, Category };
+export type RecurrentExpenseWithCategory = RecurrentExpense & { categoryName: string | null };
+
+export type { Expense, Category, RecurrentExpense };
 
 export async function getCategories(): Promise<Category[]> {
   try {
@@ -216,5 +218,81 @@ export async function getMonthsWithData(): Promise<string[]> {
   } catch (e) {
     console.error('getMonthsWithData error:', e);
     return [];
+  }
+}
+
+export async function getRecurrentExpenses(): Promise<RecurrentExpenseWithCategory[]> {
+  try {
+    const rows = await db.select()
+      .from(recurrentExpenses)
+      .leftJoin(categories, eq(recurrentExpenses.categoryId, categories.id))
+      .orderBy(desc(recurrentExpenses.createdAt));
+
+    return rows.map(row => ({
+      ...row.recurrent_expenses,
+      categoryName: row.categories?.name ?? null,
+    }));
+  } catch (e) {
+    console.error('getRecurrentExpenses error:', e);
+    return [];
+  }
+}
+
+export async function insertRecurrentExpense(data: {
+  merchant: string;
+  categoryId: number | null;
+  amount: number;
+  source: string;
+  account: string;
+  description: string;
+}): Promise<RecurrentExpense | null> {
+  try {
+    const result = await db.insert(recurrentExpenses).values({
+      merchant: data.merchant || null,
+      categoryId: data.categoryId,
+      amount: data.amount,
+      currency: 'USD',
+      source: data.source || null,
+      account: data.account || null,
+      description: data.description || null,
+    }).returning();
+    return result[0] || null;
+  } catch (e) {
+    console.error('insertRecurrentExpense error:', e);
+    return null;
+  }
+}
+
+export async function deleteRecurrentExpense(id: number): Promise<boolean> {
+  try {
+    const result = await db.delete(recurrentExpenses).where(eq(recurrentExpenses.id, id)).returning();
+    return result.length > 0;
+  } catch (e) {
+    console.error('deleteRecurrentExpense error:', e);
+    return false;
+  }
+}
+
+export async function applyRecurrentExpense(id: number): Promise<Expense | null> {
+  try {
+    const rows = await db.select().from(recurrentExpenses).where(eq(recurrentExpenses.id, id));
+    const template = rows[0];
+    if (!template) return null;
+
+    const result = await db.insert(expenses).values({
+      date: new Date(),
+      merchant: template.merchant,
+      categoryId: template.categoryId,
+      amount: template.amount,
+      currency: template.currency || 'USD',
+      source: template.source,
+      account: template.account,
+      description: template.description,
+    }).returning();
+
+    return result[0] || null;
+  } catch (e) {
+    console.error('applyRecurrentExpense error:', e);
+    return null;
   }
 }

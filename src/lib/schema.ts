@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, real, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, real, text, timestamp, integer, boolean, doublePrecision } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const categories = pgTable('categories', {
@@ -33,3 +33,24 @@ export const expensesRelations = relations(expenses, ({ one }) => ({
 }));
 
 export type Expense = typeof expenses.$inferSelect;
+
+export const recurrentExpenses = pgTable('recurrent_expenses', {
+  id: serial('id').primaryKey(),
+  amount: doublePrecision('amount').notNull(),
+  currency: varchar('currency', { length: 10 }).default('USD'),
+  categoryId: integer('category_id').references(() => categories.id),
+  merchant: varchar('merchant', { length: 255 }),
+  source: varchar('source', { length: 255 }),
+  account: varchar('account', { length: 50 }),
+  description: text('description'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const recurrentExpensesRelations = relations(recurrentExpenses, ({ one }) => ({
+  category: one(categories, {
+    fields: [recurrentExpenses.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+export type RecurrentExpense = typeof recurrentExpenses.$inferSelect;
